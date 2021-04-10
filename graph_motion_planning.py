@@ -81,6 +81,7 @@ class MotionPlanning(Drone):
         self.arm()
         self.take_control()
     # takeoff drone the attribute to takeoff is the target altitude
+
     def takeoff_transition(self):
         self.flight_state = States.TAKEOFF
         print("takeoff transition")
@@ -93,7 +94,8 @@ class MotionPlanning(Drone):
         print('target position', self.target_position)
         # cmd_position(north, east, altitude, heading)
         # command the drone to move to a specific (N, E, altitude) defined position (in meters) with a specific heading (in radians)
-        self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2], self.target_position[3])
+        self.cmd_position(self.target_position[0], self.target_position[1],
+                          self.target_position[2], self.target_position[3])
 
     def landing_transition(self):
         self.flight_state = States.LANDING

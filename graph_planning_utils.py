@@ -32,12 +32,12 @@ def create_grid(data, drone_altitude, safety_distance):
         north, east, alt, d_north, d_east, d_alt = data[i, :]
         if alt + d_alt + safety_distance > drone_altitude:
             obstacle = [
-                int(np.clip(north - d_north - safety_distance - north_min, 0, north_size-1)),
-                int(np.clip(north + d_north + safety_distance - north_min, 0, north_size-1)),
-                int(np.clip(east - d_east - safety_distance - east_min, 0, east_size-1)),
-                int(np.clip(east + d_east + safety_distance - east_min, 0, east_size-1)),
+                int(np.clip(north - d_north - safety_distance - north_min, 0, north_size - 1)),
+                int(np.clip(north + d_north + safety_distance - north_min, 0, north_size - 1)),
+                int(np.clip(east - d_east - safety_distance - east_min, 0, east_size - 1)),
+                int(np.clip(east + d_east + safety_distance - east_min, 0, east_size - 1)),
             ]
-            grid[obstacle[0]:obstacle[1]+1, obstacle[2]:obstacle[3]+1] = 1
+            grid[obstacle[0]:obstacle[1] + 1, obstacle[2]:obstacle[3] + 1] = 1
 
     return grid, int(north_min), int(east_min)
 
@@ -142,9 +142,9 @@ def a_star(grid, h, start, goal):
     return path[::-1], path_cost
 
 
-
 def heuristic(position, goal_position):
     return np.linalg.norm(np.array(position) - np.array(goal_position))
+
 
 def dfs(grid, h, start, goal):
 
@@ -198,6 +198,7 @@ def dfs(grid, h, start, goal):
         print('**********************')
     return path[::-1], path_cost
 
+
 def iterative_astar(grid, h, start, goal):
 
     path = []
@@ -249,6 +250,7 @@ def iterative_astar(grid, h, start, goal):
         print('**********************')
     return path[::-1], path_cost
 
+
 def ucs(grid, h, start, goal):
 
     path = []
@@ -299,4 +301,3 @@ def ucs(grid, h, start, goal):
         print('Failed to find a path!')
         print('**********************')
     return path[::-1], path_cost
-
