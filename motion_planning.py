@@ -1,3 +1,5 @@
+# Muhammad Usman FAROOQ - 55301764
+
 import argparse
 import time
 import msgpack
@@ -5,11 +7,12 @@ from enum import Enum, auto
 
 import numpy as np
 
-from planning_utils import a_star, ucs, iterative_astar, dfs, heuristic, create_grid
+from planning_utils import a_star, ucs, iterative_astar, dfs, heuristic, manhattanHeuristic, minkowskiHeurisitc, create_grid, create_grid_and_edges, createGraph, nearestNodes, bfs, fixedPointsAStarTraversal, visualizeGraph, alternative_fixedPointsAStarTraversal
 from udacidrone import Drone
 from udacidrone.connection import MavlinkConnection
 from udacidrone.messaging import MsgID
 from udacidrone.frame_utils import global_to_local
+import matplotlib.pyplot as plt
 
 
 class States(Enum):
@@ -81,6 +84,7 @@ class MotionPlanning(Drone):
         self.arm()
         self.take_control()
     # takeoff drone the attribute to takeoff is the target altitude
+
     def takeoff_transition(self):
         self.flight_state = States.TAKEOFF
         print("takeoff transition")
@@ -93,7 +97,8 @@ class MotionPlanning(Drone):
         print('target position', self.target_position)
         # cmd_position(north, east, altitude, heading)
         # command the drone to move to a specific (N, E, altitude) defined position (in meters) with a specific heading (in radians)
-        self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2], self.target_position[3])
+        self.cmd_position(self.target_position[0], self.target_position[1],
+                          self.target_position[2], self.target_position[3])
 
     def landing_transition(self):
         self.flight_state = States.LANDING
@@ -125,14 +130,6 @@ class MotionPlanning(Drone):
 
         self.target_position[2] = TARGET_ALTITUDE
 
-        # TODO: read lat0, lon0 from colliders into floating point values
-
-        # TODO: set home position to (lon0, lat0, 0)
-
-        # TODO: retrieve current global position
-
-        # TODO: convert to current local position using global_to_local()
-
         print('global home {0}, position {1}, local position {2}'.format(self.global_home, self.global_position,
                                                                          self.local_position))
         # Read in obstacle map
@@ -140,32 +137,55 @@ class MotionPlanning(Drone):
 
         # Define a grid for a particular altitude and safety margin around obstacles
         grid, north_offset, east_offset = create_grid(data, TARGET_ALTITUDE, SAFETY_DISTANCE)
+
+        ##
         print("North offset = {0}, east offset = {1}".format(north_offset, east_offset))
-        # Define starting point on the grid (this is just grid center)
+
         grid_start = (-north_offset, -east_offset)
-        # TODO: convert start position to current position rather than map center
+        grid_goal = (-north_offset + 100, -east_offset + 100)
 
-        # Set goal as some arbitrary position on the grid
-        grid_goal = (-north_offset + 10, -east_offset + 10)
-        # TODO: adapt to set goal as latitude / longitude position and convert
-
-        # Run A* to find a path from start to goal
-        # TODO: add diagonal motions with a cost of sqrt(2) to your A* implementation
-        # or move to a different search space such as a graph (not done here)
+        # Print start and goal both grid and graphs
         print('Local Start and Goal: ', grid_start, grid_goal)
-        path, _ = a_star(grid, heuristic, grid_start, grid_goal)
-        # path, _ = ucs(grid, heuristic, grid_start, grid_goal)
-        # path, _ = iterative_astar(grid, heuristic, grid_start, grid_goal)
-        # path, _ = dfs(grid, heuristic, grid_start, grid_goal)
 
-        # TODO: prune path to minimize number of waypoints
-        # TODO (if you're feeling ambitious): Try a different approach altogether!
+        path, _ = a_star(grid, heuristic, grid_start, grid_goal)
+        # # Question 1 - uncomment
+        # # path, _ = dfs(grid, heuristic, grid_start, grid_goal)
+        # # Question 2 - uncomment
+        # path, _ = iterative_astar(grid, heuristic, grid_start, grid_goal)
+        # # Question 3 - uncomment
+        # path, _ = ucs(grid, heuristic, grid_start, grid_goal)
+        # # Question 4 - uncomment
+        # path, _ = a_star(grid, manhattanHeuristic, grid_start, grid_goal)
+        # path, _ = a_star(grid, minkowskiHeurisitc, grid_start, grid_goal)
+    #     # Question 5 - uncomment
+
+    #     # Create graph
+    #     grid, edges = create_grid_and_edges(data, TARGET_ALTITUDE, SAFETY_DISTANCE)
+    #     # Plot graph
+    #     print('Found %5d edges' % len(edges))
+    #     plt.imshow(grid, origin='lower', cmap='Greys')
+    #     voronoiGraph = createGraph(edges)
+    #     # Find graph start and end points
+    #     graphStart = nearestNodes(voronoiGraph, grid_start)
+    #     graphGoal = nearestNodes(voronoiGraph, grid_goal)
+    #     print('Local Start and Goal - graphs: ', graphStart, graphGoal)
+    #    # Run bfs
+    #     path, _ = bfs(voronoiGraph, heuristic, graphStart, graphGoal)
+
+        print(f"Planned Path: {path}")
+
+        # # Question6 - uncomment and add three arbitrary points
+        # point1 = (316, 448)
+        # point2 = (317, 438)
+        # point3 = (312, 445)
+        # path, _ = fixedPointsAStarTraversal(grid, h, start, goal, point1, point2, point3)
+        # Question 6 - Alternative version
+        # path, cost = alternative_fixedPointsAStarTraversal(grid, h, start, goal, point1, point2, point3)
 
         # Convert path to waypoints
         waypoints = [[p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in path]
         # Set self.waypoints
         self.waypoints = waypoints
-        # TODO: send waypoints to sim (this is just for visualization of waypoints)
         self.send_waypoints()
 
     def start(self):
