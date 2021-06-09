@@ -2,7 +2,7 @@
 
 ![Quad Image](./misc/enroute.png)
 
-Worked on [FCND Motion Planning](https://github.com/udacity/FCND-Motion-Planning) from UDACITY implementing the following:
+**Worked on [FCND Motion Planning](https://github.com/udacity/FCND-Motion-Planning) from UDACITY implementing the following:**
 
 ## Implementing the depth-first search algorithm
 
